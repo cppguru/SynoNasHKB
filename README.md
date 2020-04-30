@@ -37,9 +37,9 @@ Wait for docker to finish building your image.
 
 Create the following folder structure for your container:
 
-YOUR_CONTAINER_NAME/                                                                                                              
-├── accessories                              <-- Holds your accesories so you wont have to redo the setup on container update.
-└── config-SynoNasBridge.json                <-- Config file required by the application.
+YOUR_CONTAINER_NAME(Folder)                                                                                                              
+--- accessories(folder)                     <-- Holds your accesories so you wont have to redo the setup on container update                              
+--- config-SynoNasBridge.json (config file) <-- Config file required by the application.
 
 Copy the file config-SynoNasBridge-example.json from configs folder into YOUR_CONTAINER_NAME folder and rename it to config-SynoNasBridge.json and update it according to the example inside.
 
