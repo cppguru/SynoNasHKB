@@ -1,0 +1,18 @@
+{
+  "bridge": {
+    "name": "Name your NAS HomeKit bridge",
+    "pincode": "Attention! it Needs to follow the format -> 123-45-678",
+    "mac": "Mac address used by HomeKit to identity the device, needs to be unique XX:XX:XX:XX:XX:XX",
+    "port": "47130",
+    "accessoryNasTemperature": {
+      "label":"This is the accessory name that will be show in HomeKit app"
+    }
+  },
+  "nas": {
+    "fqdn": "FQDN of your Synology NAS",
+    "port": "Port of your NAS",
+    "username":"User with admin rights on the NAS",
+    "password":"Password",
+    "https":"Set true for https or false for http"
+  }
+}  
