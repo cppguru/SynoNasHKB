@@ -2,4 +2,4 @@ docker run -dt --name NARS-HKB \
 -v /payload/NARS-HKB/config-SynoNasBridge.json:/tmp/SynoNasHKB/configs/config-SynoNasBridge.json \
 -v /payload/NARS-HKB/accessories:/persist \
 --network host \
-synonashksk:1.0
+synonashkb:1.0
