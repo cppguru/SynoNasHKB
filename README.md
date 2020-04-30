@@ -30,26 +30,28 @@ Once all sensors are finished, everything will be neatly packed as a Docker cont
 
 First git clone this repo by running the command git clone https://github.com/ddmunhoz/SynoNasHKB.git
 
-Enter the folder and run docker build --tag synonashkb:1.0 .
+Enter the folder and run ```docker build --tag synonashkb:1.0 .```
 Wait for docker to finish building your image.
 
 ###### Deploying the container
 
 Create the following folder structure for your container:
 
-YOUR_CONTAINER_NAME(Folder)                                                                                                              
---- accessories(folder)                     <-- Holds your accesories so you wont have to redo the setup on container update                              
---- config-SynoNasBridge.json (config file) <-- Config file required by the application.
+**YOUR_CONTAINER_NAME(Folder)**                                                                                                           
+**accessories(Subfolder)** <--> Holds your accesories so you wont have to redo the setup on container update                              
+**config-SynoNasBridge.json(config file)** <--> Config file required by the application.
 
-Copy the file config-SynoNasBridge-example.json from configs folder into YOUR_CONTAINER_NAME folder and rename it to config-SynoNasBridge.json and update it according to the example inside.
+Copy the file **config-SynoNasBridge-example.json** from configs folder into **YOUR_CONTAINER_NAME** folder and rename it to **config-SynoNasBridge.json** and update it according to the example inside.
 
 ###### Container launch CMD line
 
+```
 docker run -dt --name YOUR_CONTAINER_NAME \
 -v /path_on_your_server/YOUR_CONTAINER_NAME/config-SynoNasBridge.json:/tmp/SynoNasHKB/configs/config-SynoNasBridge.json \
 -v /path_on_your_server/YOUR_CONTAINER_NAME/accessories:/persist \
 --network host \
 synonashkb:1.0
+```
 
 
 

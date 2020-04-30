@@ -207,3 +207,4 @@ package-lock.json
 configs/config-SynoNasTemperature.json
 .DS_Store
 configs/config-SynoNasBridge.json
+docker-run
