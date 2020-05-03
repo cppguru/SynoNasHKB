@@ -2,7 +2,7 @@
   "name": "synoNasHkb",
   "version": "1.0.0",
   "description": "A homekit companion for Synology NAS",
-  "main": "src/synoNasBridge.js",
+  "main": "src/synoNasMain.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
