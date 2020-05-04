@@ -209,3 +209,5 @@ configs/config-SynoNasTemperature.json
 configs/config-SynoNasBridge.json
 docker-run
 src/backup.js
+docker-run
+docker-run
