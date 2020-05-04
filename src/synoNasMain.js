@@ -29,6 +29,18 @@ async function buildNasUserConnections() {
                         accessory: dev.getAccessory()
                     });
                 }
+                else {
+                    var connectionAccessories = bridge.bridgedAccessories.filter(function (obj) {
+                        return (obj.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.SerialNumber).value.includes('10.0'));
+                    });
+                    var res = connectionAccessories.filter(item1 =>
+                        !data['data']['items'].some(item2 => (item2.who === item1.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.Model).value && item2.from === item1.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.SerialNumber).value)))
+                    if (res.length != 0) {
+                        for (var key in res) {
+                            bridge.removeBridgedAccessory(res[key]);
+                        }
+                    }
+                }
             }
         }
     });
