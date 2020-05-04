@@ -20,6 +20,7 @@ Once all sensors are finished, everything will be neatly packed as a Docker cont
 | Disk Health status  | Temperature sensor | Individual disk health status             | Planned     |
 | Upload total    | Temperature sensor | Total uploaded last day                       | Planned     |
 | Reboot          | On/Off switch      | Toggle to reboot NAS                          | Planned     |
+| UPS | Humidity sensor     | Shows NAS UPS status, battery level, duration/charging status and turns red on battery below 20% | Done        |
 | Connected Users | On/Off switch      | Individual switchs to disconnect NAS sessions | Done        |
 | Virtual Machines | On/Off switch      | Individual switchs to power on/off vms | Planned     |
 
