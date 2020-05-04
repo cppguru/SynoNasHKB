@@ -22,7 +22,6 @@ module.exports = class SwitchAccessory {
       manufacturer: "DM Industries",
       model: "Synology Nas Connected Users",
       serialNumber: "00000001", //serial number (optional)
-      state: false,
       setState: function () {
         if (this.state == true) {
           this.state = false;
@@ -46,29 +45,30 @@ module.exports = class SwitchAccessory {
       },
       state: true,
       getState: function () {
-        synoNasConnection.query('/webapi/entry.cgi', {
-          api: 'SYNO.Core.CurrentConnection',
-          version: "1",
-          method: 'list'
-        }, function (err, data) {
-          if (err) {
-            console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
-            return console.error(err)
-          }
-          else {
-            var foundUser = data['data']['items'].filter(function (obj) {
-              return obj.who === name & obj.from === from;
-            });
-            if (foundUser.length === 1) {
-              this.state = true;
-            }
-            else {
-              this.state = false;
-            }
-            this.accessory.getService(Service.Switch).getCharacteristic(Characteristic.On).updateValue(this.state);
-          }
-        }.bind(this));
-        console.log("Getting User: " + this.name + " connection State: " + this.state);
+        // synoNasConnection.query('/webapi/entry.cgi', {
+        //   api: 'SYNO.Core.CurrentConnection',
+        //   version: "1",
+        //   method: 'list'
+        // }, function (err, data) {
+        //   if (err) {
+        //     console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
+        //     return console.error(err)
+        //   }
+        //   else {
+        //     var foundUser = data['data']['items'].filter(function (obj) {
+        //       return obj.who === name & obj.from === from;
+        //     });
+        //     if (foundUser.length === 1) {
+        //       this.state = true;
+        //     }
+        //     else {
+        //       this.state = false;
+        //       bridge.removeBridgedAccessory(this.accessory);
+        //     }
+        //     this.accessory.getService(Service.Switch).getCharacteristic(Characteristic.On).updateValue(this.state);
+        //   }
+        // }.bind(this));
+        // console.log("Getting User: " + this.name + " connection State: " + this.state);
         return this.state;
       },
       uuid: hap.uuid.generate("synology.nas.userconnections.switch" + name + Math.random().toString(36).substring(7)),
