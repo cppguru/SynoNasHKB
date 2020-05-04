@@ -1,2 +1,2 @@
 #!/bin/sh
-node /tmp/SynoNasHKB/src/synoNasBridge
+node /tmp/SynoNasHKB/src/synoNasMain
