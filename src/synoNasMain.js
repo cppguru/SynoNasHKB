@@ -1,11 +1,12 @@
+const config = require('../configs/config-SynoNasBridge.json');
 const synoNasUserConnection = require('./synoNasUserConnections');
 const synoNasTemperature = require('./synoNasTemperature');
 const synoNasConnection = require('./synoNasConnection');
+const synoNasUpsBattery = require('./synoNasUpsBattery');
 const { bridge } = require('./synoNasBridge');
 const hap = require("hap-nodejs");
 const Service = hap.Service;
 const Characteristic = hap.Characteristic;
-var existingNasUserConnectionsOnTheBridge = new Array();
 
 async function buildNasUserConnections() {
     synoNasConnection.query('/webapi/entry.cgi', {
@@ -19,7 +20,7 @@ async function buildNasUserConnections() {
                 return (obj.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.Model).value === data['data']['items'][key].who & obj.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.SerialNumber).value === data['data']['items'][key].from);
             });
             if (bridgeAcc.length === 0) {
-                const dev = new synoNasUserConnection(data['data']['items'][key].who, data['data']['items'][key].from);
+                const dev = new synoNasUserConnection(data['data']['items'][key].who, data['data']['items'][key].from, data['data']['items'][key].type);
                 bridge.addBridgedAccessories({
                     accessory: dev.getAccessory()
                 });
@@ -28,13 +29,14 @@ async function buildNasUserConnections() {
     });
 }
 
+
 bridge.addBridgedAccessories({
-    accessory: synoNasTemperature
+    accessory: synoNasUpsBattery,synoNasTemperature
 });
 
 setInterval(async function f() {
     await buildNasUserConnections();
-}, 5 * 1000);
+}, config.bridge.accessoryNasConnectedUser.refreshInterval  * 1000);
 
 buildNasUserConnections();
 
