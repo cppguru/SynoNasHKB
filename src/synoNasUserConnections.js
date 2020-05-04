@@ -32,9 +32,14 @@ module.exports = class SwitchAccessory {
             method: 'kick_connection',
             http_conn: '[{"who":"' + this.name + '","from":"' + this.from + '"}]'
           }, function (err, data) {
-            if (err) return console.error(err);
-            bridge.removeBridgedAccessory(this.accessory);
-            console.log("Disconnecting User: " + this.name + " " + this.state);
+            if (err) {
+              console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
+              return console.error(err)
+            }
+            else {
+              bridge.removeBridgedAccessory(this.accessory);
+              console.log("Disconnecting User: " + this.name + " " + this.state);
+            }
           }.bind(this));
         }
         return this.state;
@@ -46,17 +51,22 @@ module.exports = class SwitchAccessory {
           version: "1",
           method: 'list'
         }, function (err, data) {
-          if (err) return console.error(err);
-          var foundUser = data['data']['items'].filter(function (obj) {
-            return obj.who === name;
-          });
-          if (foundUser.length === 1) {
-            this.state = true;
+          if (err) {
+            console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
+            return console.error(err)
           }
           else {
-            this.state = false;
+            var foundUser = data['data']['items'].filter(function (obj) {
+              return obj.who === name;
+            });
+            if (foundUser.length === 1) {
+              this.state = true;
+            }
+            else {
+              this.state = false;
+            }
+            this.accessory.getService(Service.Switch).getCharacteristic(Characteristic.On).updateValue(this.state);
           }
-          this.accessory.getService(Service.Switch).getCharacteristic(Characteristic.On).updateValue(this.state);
         }.bind(this));
         console.log("Getting User: " + this.name + " connection State: " + this.state);
         return this.state;

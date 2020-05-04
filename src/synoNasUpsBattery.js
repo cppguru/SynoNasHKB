@@ -33,28 +33,33 @@ BATTERY = {
       version: 1,
       method: 'get'
     }, function (err, data) {
-      if (err) return console.error(err);
-      BATTERY.charge = parseInt(data['data']['charge']);
-      BATTERY.duration = (parseInt(data['data']['runtime']) / 60);
-      if (BATTERY.duration <= 20) {
-        BATTERY.statusLowBattery = 1;
+      if (err) {
+        console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
+        return console.error(err)
       }
       else {
-        BATTERY.statusLowBattery = 0;
-      }
-      if ( String(data['data']['status']).includes('online') ) {
-        BATTERY.chargingState = 1;
-      }
-      else {
-        BATTERY.chargingState = 2;
-      }
-      //BATTERY.charge = parseInt(data['data']['charge']);
-      accessory.getService(Service.AccessoryInformation)
-        .setCharacteristic(Characteristic.Manufacturer, "Batt. Duration: " + BATTERY.duration)
+        BATTERY.charge = parseInt(data['data']['charge']);
+        BATTERY.duration = (parseInt(data['data']['runtime']) / 60);
+        if (BATTERY.duration <= 20) {
+          BATTERY.statusLowBattery = 1;
+        }
+        else {
+          BATTERY.statusLowBattery = 0;
+        }
+        if (String(data['data']['status']).includes('online')) {
+          BATTERY.chargingState = 1;
+        }
+        else {
+          BATTERY.chargingState = 2;
+        }
+        //BATTERY.charge = parseInt(data['data']['charge']);
+        accessory.getService(Service.AccessoryInformation)
+          .setCharacteristic(Characteristic.Manufacturer, "Batt. Duration: " + BATTERY.duration)
 
-      accessory.getService(Service.BatteryService).getCharacteristic(Characteristic.ChargingState).updateValue(BATTERY.chargingState);
-      accessory.getService(Service.HumiditySensor).getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(BATTERY.charge);
-      accessory.getService(Service.BatteryService).getCharacteristic(Characteristic.StatusLowBattery).updateValue(BATTERY.statusLowBattery);
+        accessory.getService(Service.BatteryService).getCharacteristic(Characteristic.ChargingState).updateValue(BATTERY.chargingState);
+        accessory.getService(Service.HumiditySensor).getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(BATTERY.charge);
+        accessory.getService(Service.BatteryService).getCharacteristic(Characteristic.StatusLowBattery).updateValue(BATTERY.statusLowBattery);
+      }
     })
     console.log(config.bridge.accessoryNasUps.label + " - Checking charging state: " + BATTERY.chargingState);
     console.log(config.bridge.accessoryNasUps.label + " - Checking charge level: " + BATTERY.charge);

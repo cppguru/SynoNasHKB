@@ -30,9 +30,14 @@ SENSOR = {
       version: 1,
       method: 'info'
     }, function (err, data) {
-      if (err) return console.error(err);
-      SENSOR.currentTemperature = parseFloat(data['data']['sys_temp']);
-      accessory.getService(Service.TemperatureSensor).getCharacteristic(Characteristic.On).updateValue(SENSOR.currentTemperature);
+      if (err) {
+        console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
+        return console.error(err)
+      }
+      else {
+        SENSOR.currentTemperature = parseFloat(data['data']['sys_temp']);
+        accessory.getService(Service.TemperatureSensor).getCharacteristic(Characteristic.On).updateValue(SENSOR.currentTemperature);
+      }
     });
     console.log(config.bridge.accessoryNasTemperature.label + " - Checking current temperature: " + SENSOR.currentTemperature);
     return SENSOR.currentTemperature;
