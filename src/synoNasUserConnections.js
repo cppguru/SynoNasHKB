@@ -57,7 +57,7 @@ module.exports = class SwitchAccessory {
           }
           else {
             var foundUser = data['data']['items'].filter(function (obj) {
-              return obj.who === name;
+              return obj.who === name & obj.from === from;
             });
             if (foundUser.length === 1) {
               this.state = true;
