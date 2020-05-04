@@ -97,7 +97,7 @@ module.exports = class SwitchAccessory {
         .setCharacteristic(Characteristic.Manufacturer, this.Switch.type + "-" + this.Switch.descr)
         .setCharacteristic(Characteristic.Model, this.Switch.name)
         .setCharacteristic(Characteristic.SerialNumber, this.Switch.from)
-      //.setCharacteristic(Characteristic.FirmwareRevision, require('./package.json').version);
+        .setCharacteristic(Characteristic.FirmwareRevision, "2.0.0");
 
 
 
