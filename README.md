@@ -11,6 +11,7 @@ Once all sensors are finished, everything will be neatly packed as a Docker cont
 | Feature         | Accessory Type     | Description                                   | Status      |
 |      ---        |        ---         |              ---                              |     ---     |
 | System Temp     | Temperature sensor | Display NAS Temperature                       | Done        |
+| Shared Folders     |  On/Off switch |  allows you to mount/unmount encrypted folders                      | Done        |
 | Disk Temp       | Temperature sensor | Individual sensor for HD temp                 | In progress |
 | Free space      | Temperature sensor | Return nas free disk space                    | Planned     |
 | Used space      | Temperature sensor | Return nas used disk space                    | Planned     |
