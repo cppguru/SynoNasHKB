@@ -61,7 +61,7 @@ module.exports = class SwitchAccessory {
         console.log("Getting User: " + this.name + " connection State: " + this.state);
         return this.state;
       },
-      uuid: hap.uuid.generate("synology.nas.userconnections.switch" + name),
+      uuid: hap.uuid.generate("synology.nas.userconnections.switch" + name + Math.random().toString(36).substring(7)),
       accessory: null
     };
     console.log("Accessory " + name + " " + config.bridge.accessoryNasConnectedUser.label + " created.");
