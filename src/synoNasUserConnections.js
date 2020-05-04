@@ -13,10 +13,12 @@ const Service = hap.Service;
 const { bridge } = require('./synoNasBridge');
 
 module.exports = class SwitchAccessory {
-  constructor(name, from) {
+  constructor(name, from, type, descr) {
     this.Switch = {
       name,
       from,
+      type,
+      descr,
       manufacturer: "DM Industries",
       model: "Synology Nas Connected Users",
       serialNumber: "00000001", //serial number (optional)
@@ -32,12 +34,12 @@ module.exports = class SwitchAccessory {
           }, function (err, data) {
             if (err) return console.error(err);
             bridge.removeBridgedAccessory(this.accessory);
-            console.log('');
+            console.log("Disconnecting User: " + this.name + " " + this.state);
           }.bind(this));
         }
         return this.state;
       },
-      state: false,
+      state: true,
       getState: function () {
         synoNasConnection.query('/webapi/entry.cgi', {
           api: 'SYNO.Core.CurrentConnection',
@@ -56,13 +58,13 @@ module.exports = class SwitchAccessory {
           }
           this.accessory.getService(Service.Switch).getCharacteristic(Characteristic.On).updateValue(this.state);
         }.bind(this));
-        console.log("Getting User connection State: " + this.state);
+        console.log("Getting User: " + this.name + " connection State: " + this.state);
         return this.state;
       },
       uuid: hap.uuid.generate("synology.nas.userconnections.switch" + name),
       accessory: null
     };
-    console.log("Accessory " + config.bridge.accessoryNasConnectedUser.label + " created.");
+    console.log("Accessory " + name + " " + config.bridge.accessoryNasConnectedUser.label + " created.");
   }
 
   getAccessory() {
@@ -82,9 +84,9 @@ module.exports = class SwitchAccessory {
           cb(null, await this.Switch.getState());
         });
       acc.getService(Service.AccessoryInformation)
-      //.setCharacteristic(Characteristic.Manufacturer, “My Build")
-      .setCharacteristic(Characteristic.Model, this.Switch.name)
-      .setCharacteristic(Characteristic.SerialNumber, this.Switch.from)
+        .setCharacteristic(Characteristic.Manufacturer, this.Switch.type + "-" + this.Switch.descr)
+        .setCharacteristic(Characteristic.Model, this.Switch.name)
+        .setCharacteristic(Characteristic.SerialNumber, this.Switch.from)
       //.setCharacteristic(Characteristic.FirmwareRevision, require('./package.json').version);
 
 
