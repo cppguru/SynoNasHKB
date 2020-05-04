@@ -5,7 +5,16 @@
     "mac": "Mac address used by HomeKit to identity the device, needs to be unique XX:XX:XX:XX:XX:XX",
     "port": "47130",
     "accessoryNasTemperature": {
-      "label":"This is the accessory name that will be show in HomeKit app"
+      "label":"This is the accessory name that will be show in HomeKit app",
+      "refreshInterval":"refresh interval in seconds for pooling data from nas"
+    },
+    "accessoryNasConnectedUser": {
+      "label":"Placeholder won't show in Home app at this moment",
+      "refreshInterval":"refresh interval in seconds for pooling data from nas"
+    },
+    "accessoryNasUps": {
+      "label":"This is the accessory name that will be show in HomeKit app",
+      "refreshInterval":"refresh interval in seconds for pooling data from nas"
     }
   },
   "nas": {
@@ -15,4 +24,4 @@
     "password":"Password",
     "https":"Set true for https or false for http"
   }
-}  
+}
