@@ -15,7 +15,8 @@ const { bridge } = require('./synoNasBridge');
 module.exports = class SwitchAccessory {
   constructor(name, from, type, descr) {
     this.Switch = {
-      name,
+      label: name,
+      name: 'Usr: '+ name.substring(0,6) + '\r\n' + type.substring(0,4) + ': ' + from.substring(from.length - 4),
       from,
       type,
       descr,
@@ -95,7 +96,7 @@ module.exports = class SwitchAccessory {
         });
       acc.getService(Service.AccessoryInformation)
         .setCharacteristic(Characteristic.Manufacturer, this.Switch.type + "-" + this.Switch.descr)
-        .setCharacteristic(Characteristic.Model, this.Switch.name)
+        .setCharacteristic(Characteristic.Model, this.Switch.label)
         .setCharacteristic(Characteristic.SerialNumber, this.Switch.from)
         .setCharacteristic(Characteristic.FirmwareRevision, "2.0.0");
 

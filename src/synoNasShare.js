@@ -14,9 +14,9 @@ const { bridge } = require('./synoNasBridge');
 
 module.exports = class ShareAccessory {
   constructor(name) {
-    this.Switch = {
+    this.Outlet = {
       label: name,
-      name: "Share:" + name,
+      name: "Share:\r\n" + name,
       setState: function () {
         let callAction = null;
         if (this.state) {
@@ -65,44 +65,44 @@ module.exports = class ShareAccessory {
             else {
               this.state = false;
             }
-            this.accessory.getService(Service.Switch).getCharacteristic(Characteristic.On).updateValue(this.state);
+            this.accessory.getService(Service.Outlet).getCharacteristic(Characteristic.On).updateValue(this.state);
           }
         }.bind(this));
         console.log("Share - " + this.label + " checking mount state: " + this.state);
         return this.state;
       },
-      uuid: hap.uuid.generate("synology.nas.userconnections.Switch" + name + Math.random().toString(36).substring(7)),
+      uuid: hap.uuid.generate("synology.nas.userconnections.Outlet" + name + Math.random().toString(36).substring(7)),
       accessory: null
     };
     console.log("Accessory " + name + " " + config.bridge.accessoryNasShare.label + " created.");
   }
 
   getAccessory() {
-    if (!this.Switch.accessory) {
+    if (!this.Outlet.accessory) {
       let acc;
-      acc = new Accessory(this.Switch.name, this.Switch.uuid);
-      acc.username = this.Switch.username;
-      acc.pincode = this.Switch.pincode;
+      acc = new Accessory(this.Outlet.name, this.Outlet.uuid);
+      acc.username = this.Outlet.username;
+      acc.pincode = this.Outlet.pincode;
       acc
-        .addService(Service.Switch, this.Switch.name)
+        .addService(Service.Outlet, this.Outlet.name)
         .getCharacteristic(Characteristic.On)
         .on('set', async (value, cb) => {
-          await this.Switch.setState(value);
+          await this.Outlet.setState(value);
           cb();
         })
         .on('get', async (cb) => {
-          cb(null, await this.Switch.getState());
+          cb(null, await this.Outlet.getState());
         });
       acc.getService(Service.AccessoryInformation)
-        //   .setCharacteristic(Characteristic.Manufacturer, this.Switch.type + "-" + this.Switch.descr)
-        .setCharacteristic(Characteristic.Model, this.Switch.label)
-        //   .setCharacteristic(Characteristic.SerialNumber, this.Switch.from)
+        //   .setCharacteristic(Characteristic.Manufacturer, this.Outlet.type + "-" + this.Outlet.descr)
+        .setCharacteristic(Characteristic.Model, this.Outlet.label)
+        //   .setCharacteristic(Characteristic.SerialNumber, this.Outlet.from)
         .setCharacteristic(Characteristic.FirmwareRevision, "1.0.0");
 
 
 
-      this.Switch.accessory = acc;
+      this.Outlet.accessory = acc;
       return acc;
-    } else return this.Switch.accessory;
+    } else return this.Outlet.accessory;
   }
 }
