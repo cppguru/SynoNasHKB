@@ -12,11 +12,11 @@ const Characteristic = hap.Characteristic;
 const Service = hap.Service;
 const { bridge } = require('./synoNasBridge');
 
-module.exports = class SwitchAccessory {
+module.exports = class DoorAccessory {
   constructor(name, from, type, descr) {
-    this.Switch = {
+    this.Door = {
       label: name,
-      name: 'Usr: '+ name.substring(0,6) + '\r\n' + type.substring(0,4) + ': ' + from.substring(from.length - 4),
+      name: 'Usr: ' + name.substring(0, 6) + '\r\n' + type.substring(0, 4) + ': ' + from.substring(from.length - 4),
       from,
       type,
       descr,
@@ -66,44 +66,48 @@ module.exports = class SwitchAccessory {
         //       this.state = false;
         //       bridge.removeBridgedAccessory(this.accessory);
         //     }
-        //     this.accessory.getService(Service.Switch).getCharacteristic(Characteristic.On).updateValue(this.state);
+        //     this.accessory.getService(Service.Door).getCharacteristic(Characteristic.On).updateValue(this.state);
         //   }
         // }.bind(this));
         // console.log("Getting User: " + this.name + " connection State: " + this.state);
         return this.state;
       },
-      uuid: hap.uuid.generate("synology.nas.userconnections.switch" + name + Math.random().toString(36).substring(7)),
+      uuid: hap.uuid.generate("synology.nas.userconnections.Door" + name + Math.random().toString(36).substring(7)),
       accessory: null
     };
     console.log("Accessory " + name + " " + config.bridge.accessoryNasConnectedUser.label + " created.");
   }
 
   getAccessory() {
-    if (!this.Switch.accessory) {
+    if (!this.Door.accessory) {
       let acc;
-      acc = new Accessory(this.Switch.name, this.Switch.uuid);
-      acc.username = this.Switch.username;
-      acc.pincode = this.Switch.pincode;
+      acc = new Accessory(this.Door.name, this.Door.uuid);
+      acc.username = this.Door.username;
+      acc.pincode = this.Door.pincode;
       acc
-        .addService(Service.Switch, this.Switch.name)
-        .getCharacteristic(Characteristic.On)
+        .addService(Service.Door, this.Door.name)
+      acc.getService(Service.Door)
+        .setCharacteristic(Characteristic.TargetDoorState, 100)
+        .setCharacteristic(Characteristic.TargetPosition, 100)
+        .setCharacteristic(Characteristic.CurrentPosition, 100);
+      acc.getService(Service.Door)
+        .getCharacteristic(Characteristic.TargetPosition)
         .on('set', async (value, cb) => {
-          await this.Switch.setState(value);
+          await this.Door.setState(value);
           cb();
         })
+      acc.getService(Service.Door)
+        .getCharacteristic(Characteristic.TargetDoorState)
         .on('get', async (cb) => {
-          cb(null, await this.Switch.getState());
+          cb(null, await this.Door.getState());
         });
       acc.getService(Service.AccessoryInformation)
-        .setCharacteristic(Characteristic.Manufacturer, this.Switch.type + "-" + this.Switch.descr)
-        .setCharacteristic(Characteristic.Model, this.Switch.label)
-        .setCharacteristic(Characteristic.SerialNumber, this.Switch.from)
+        .setCharacteristic(Characteristic.Manufacturer, this.Door.type + "-" + this.Door.descr)
+        .setCharacteristic(Characteristic.Model, this.Door.label)
+        .setCharacteristic(Characteristic.SerialNumber, this.Door.from)
         .setCharacteristic(Characteristic.FirmwareRevision, "2.0.0");
-
-
-
-      this.Switch.accessory = acc;
+      this.Door.accessory = acc;
       return acc;
-    } else return this.Switch.accessory;
+    } else return this.Door.accessory;
   }
 }

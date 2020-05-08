@@ -14,7 +14,7 @@ const { bridge } = require('./synoNasBridge');
 
 module.exports = class ShareAccessory {
   constructor(name) {
-    this.Outlet = {
+    this.GarageDoorOpener = {
       label: name,
       name: "Share:\r\n" + name,
       setState: function () {
@@ -38,6 +38,24 @@ module.exports = class ShareAccessory {
             return console.error(err)
           }
           else {
+            if (this.state) {
+              this.accessory.getService(Service.GarageDoorOpener)
+                .getCharacteristic(Characteristic.CurrentDoorState)
+                .updateValue(0);
+
+              this.accessory.getService(Service.GarageDoorOpener)
+                .getCharacteristic(Characteristic.TargetDoorState)
+                .updateValue(0);
+            }
+            else {
+              this.accessory.getService(Service.GarageDoorOpener)
+                .getCharacteristic(Characteristic.CurrentDoorState)
+                .updateValue(1);
+
+              this.accessory.getService(Service.GarageDoorOpener)
+                .getCharacteristic(Characteristic.TargetDoorState)
+                .updateValue(1);
+            }
             console.log("Share - " + this.label + " mount state changed to: " + this.state);
           }
         }.bind(this));
@@ -60,49 +78,72 @@ module.exports = class ShareAccessory {
               return obj.name === name & obj.encryption != 1;
             });
             if (foundUser.length === 1) {
-              this.state = true;
+              // this.state = true;
+              this.accessory.getService(Service.GarageDoorOpener)
+                .getCharacteristic(Characteristic.CurrentDoorState)
+                .updateValue(0);
+
+              this.accessory.getService(Service.GarageDoorOpener)
+                .getCharacteristic(Characteristic.TargetDoorState)
+                .updateValue(0);
+
             }
             else {
-              this.state = false;
+              //this.state = false;
+              this.accessory.getService(Service.GarageDoorOpener)
+                .getCharacteristic(Characteristic.CurrentDoorState)
+                .updateValue(1);
+
+              this.accessory.getService(Service.GarageDoorOpener)
+                .getCharacteristic(Characteristic.TargetDoorState)
+                .updateValue(1);
+
+
+              // this.accessory.getService(Service.GarageDoorOpener)
+              //  .setCharacteristic(Characteristic.TargetDoorState, 1);
+
+              // this.accessory.getService(Service.GarageDoorOpener).getCharacteristic(Characteristic.CurrentDoorState).updateValue(Characteristic.CurrentDoorState.CLOSING);
             }
-            this.accessory.getService(Service.Outlet).getCharacteristic(Characteristic.On).updateValue(this.state);
           }
         }.bind(this));
         console.log("Share - " + this.label + " checking mount state: " + this.state);
-        return this.state;
+        //return this.state;
       },
-      uuid: hap.uuid.generate("synology.nas.userconnections.Outlet" + name + Math.random().toString(36).substring(7)),
+      uuid: hap.uuid.generate("synology.nas.userconnections.GarageDoorOpener" + name + Math.random().toString(36).substring(7)),
       accessory: null
     };
     console.log("Accessory " + name + " " + config.bridge.accessoryNasShare.label + " created.");
   }
 
   getAccessory() {
-    if (!this.Outlet.accessory) {
+    if (!this.GarageDoorOpener.accessory) {
       let acc;
-      acc = new Accessory(this.Outlet.name, this.Outlet.uuid);
-      acc.username = this.Outlet.username;
-      acc.pincode = this.Outlet.pincode;
+      acc = new Accessory(this.GarageDoorOpener.name, this.GarageDoorOpener.uuid);
+      acc.username = this.GarageDoorOpener.username;
+      acc.pincode = this.GarageDoorOpener.pincode;
       acc
-        .addService(Service.Outlet, this.Outlet.name)
-        .getCharacteristic(Characteristic.On)
+        .addService(Service.GarageDoorOpener, this.GarageDoorOpener.name)
+      acc.getService(Service.GarageDoorOpener)
+        .setCharacteristic(Characteristic.TargetDoorState, 0)
+        .setCharacteristic(Characteristic.TargetPosition, 0)
+        .setCharacteristic(Characteristic.ObstructionDetected, false);
+      acc.getService(Service.GarageDoorOpener)
+        .getCharacteristic(Characteristic.TargetDoorState)
         .on('set', async (value, cb) => {
-          await this.Outlet.setState(value);
+          this.GarageDoorOpener.setState(value);
           cb();
         })
+      acc.getService(Service.GarageDoorOpener)
+        .getCharacteristic(Characteristic.CurrentDoorState)
         .on('get', async (cb) => {
-          cb(null, await this.Outlet.getState());
+          cb(null, await this.GarageDoorOpener.getState());
         });
       acc.getService(Service.AccessoryInformation)
-        //   .setCharacteristic(Characteristic.Manufacturer, this.Outlet.type + "-" + this.Outlet.descr)
-        .setCharacteristic(Characteristic.Model, this.Outlet.label)
-        //   .setCharacteristic(Characteristic.SerialNumber, this.Outlet.from)
+        .setCharacteristic(Characteristic.Model, this.GarageDoorOpener.label)
         .setCharacteristic(Characteristic.FirmwareRevision, "1.0.0");
 
-
-
-      this.Outlet.accessory = acc;
+      this.GarageDoorOpener.accessory = acc;
       return acc;
-    } else return this.Outlet.accessory;
+    } else return this.GarageDoorOpener.accessory;
   }
 }
