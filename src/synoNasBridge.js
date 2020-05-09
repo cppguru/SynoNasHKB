@@ -1,4 +1,10 @@
-const config = require('../configs/config-SynoNasBridge.json');
+/** 
+ *  Synology NAS companion
+ *  
+ *  by Diego Munhoz - munhozdiego@live.com - https://diegomunhoz.com
+ */
+
+ const config = require('../configs/config-SynoNasBridge.json');
 const { Bridge, uuid, Categories } = require('hap-nodejs');
 
 

@@ -35,8 +35,13 @@ SENSOR = {
         return console.error(err)
       }
       else {
-        SENSOR.currentTemperature = parseFloat(data['data']['sys_temp']);
-        accessory.getService(Service.TemperatureSensor).getCharacteristic(Characteristic.On).updateValue(SENSOR.currentTemperature);
+        if (data['data'] != null) {
+          SENSOR.currentTemperature = parseFloat(data['data']['sys_temp']);
+          accessory.getService(Service.TemperatureSensor).getCharacteristic(Characteristic.On).updateValue(SENSOR.currentTemperature);
+        }
+        else {
+          console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " empty payload: " + data);
+        }
       }
     });
     console.log(config.bridge.accessoryNasTemperature.label + " - Checking current temperature: " + SENSOR.currentTemperature);

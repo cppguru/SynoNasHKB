@@ -1,5 +1,5 @@
 /** 
- *  Synology RT2600ac and MR2200ac router companion
+ *  Synology NAS companion
  *  
  *  by Diego Munhoz - munhozdiego@live.com - https://diegomunhoz.com
  */
@@ -10,7 +10,6 @@ const synoNasConnection = require('./synoNasConnection');
 const Accessory = hap.Accessory;
 const Characteristic = hap.Characteristic;
 const Service = hap.Service;
-const { bridge } = require('./synoNasBridge');
 
 module.exports = class ShareAccessory {
   constructor(name) {
@@ -74,40 +73,38 @@ module.exports = class ShareAccessory {
             return console.error(err)
           }
           else {
-            var foundUser = data['data']['shares'].filter(function (obj) {
-              return obj.name === name & obj.encryption != 1;
-            });
-            if (foundUser.length === 1) {
-              // this.state = true;
-              this.accessory.getService(Service.GarageDoorOpener)
-                .getCharacteristic(Characteristic.CurrentDoorState)
-                .updateValue(0);
+            if (data['data'] != null) {
+              var foundUser = data['data']['shares'].filter(function (obj) {
+                return obj.name === name & obj.encryption != 1;
+              });
+              if (foundUser.length === 1) {
+                this.state = true;
+                this.accessory.getService(Service.GarageDoorOpener)
+                  .getCharacteristic(Characteristic.CurrentDoorState)
+                  .updateValue(0);
 
-              this.accessory.getService(Service.GarageDoorOpener)
-                .getCharacteristic(Characteristic.TargetDoorState)
-                .updateValue(0);
+                this.accessory.getService(Service.GarageDoorOpener)
+                  .getCharacteristic(Characteristic.TargetDoorState)
+                  .updateValue(0);
+              }
+              else {
+                this.state = false;
+                this.accessory.getService(Service.GarageDoorOpener)
+                  .getCharacteristic(Characteristic.CurrentDoorState)
+                  .updateValue(1);
 
+                this.accessory.getService(Service.GarageDoorOpener)
+                  .getCharacteristic(Characteristic.TargetDoorState)
+                  .updateValue(1);
+              }
             }
             else {
-              //this.state = false;
-              this.accessory.getService(Service.GarageDoorOpener)
-                .getCharacteristic(Characteristic.CurrentDoorState)
-                .updateValue(1);
-
-              this.accessory.getService(Service.GarageDoorOpener)
-                .getCharacteristic(Characteristic.TargetDoorState)
-                .updateValue(1);
-
-
-              // this.accessory.getService(Service.GarageDoorOpener)
-              //  .setCharacteristic(Characteristic.TargetDoorState, 1);
-
-              // this.accessory.getService(Service.GarageDoorOpener).getCharacteristic(Characteristic.CurrentDoorState).updateValue(Characteristic.CurrentDoorState.CLOSING);
+              console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " empty payload: " + data);
             }
           }
         }.bind(this));
         console.log("Share - " + this.label + " checking mount state: " + this.state);
-        //return this.state;
+        return this.state;
       },
       uuid: hap.uuid.generate("synology.nas.userconnections.GarageDoorOpener" + name + Math.random().toString(36).substring(7)),
       accessory: null

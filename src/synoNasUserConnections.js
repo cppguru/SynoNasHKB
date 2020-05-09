@@ -1,5 +1,5 @@
 /** 
- *  Synology RT2600ac and MR2200ac router companion
+ *  Synology NAS companion
  *  
  *  by Diego Munhoz - munhozdiego@live.com - https://diegomunhoz.com
  */

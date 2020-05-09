@@ -1,3 +1,9 @@
+/** 
+ *  Synology NAS companion
+ *  
+ *  by Diego Munhoz - munhozdiego@live.com - https://diegomunhoz.com
+ */
+
 const config = require('../configs/config-SynoNasBridge.json');
 const Syno = require('synology');
 

@@ -1,3 +1,9 @@
+/** 
+ *  Synology NAS companion
+ *  
+ *  by Diego Munhoz - munhozdiego@live.com - https://diegomunhoz.com
+ */
+
 const config = require('../configs/config-SynoNasBridge.json');
 const synoNasUserConnection = require('./synoNasUserConnections');
 const synoNasTemperature = require('./synoNasTemperature');
@@ -20,28 +26,33 @@ async function buildNasUserConnections() {
             return console.error(err)
         }
         else {
-            for (var key in data['data']['items']) {
-                var bridgeAcc = bridge.bridgedAccessories.filter(function (obj) {
-                    return (obj.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.Model).value === data['data']['items'][key].who & obj.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.SerialNumber).value === data['data']['items'][key].from);
-                });
-                if (bridgeAcc.length === 0) {
-                    const dev = new synoNasUserConnection(data['data']['items'][key].who, data['data']['items'][key].from, data['data']['items'][key].type);
-                    bridge.addBridgedAccessories({
-                        accessory: dev.getAccessory()
+            if (data['data'] != null) {
+                for (var key in data['data']['items']) {
+                    var bridgeAcc = bridge.bridgedAccessories.filter(function (obj) {
+                        return (obj.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.Model).value === data['data']['items'][key].who & obj.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.SerialNumber).value === data['data']['items'][key].from);
                     });
-                }
-                else {
-                    var connectionAccessories = bridge.bridgedAccessories.filter(function (obj) {
-                        return (obj.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.FirmwareRevision).value.includes('2.0.0'));
-                    });
-                    var res = connectionAccessories.filter(item1 =>
-                        !data['data']['items'].some(item2 => (item2.who === item1.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.Model).value && item2.from === item1.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.SerialNumber).value)))
-                    if (res.length != 0) {
-                        for (var key in res) {
-                            bridge.removeBridgedAccessory(res[key]);
+                    if (bridgeAcc.length === 0) {
+                        const dev = new synoNasUserConnection(data['data']['items'][key].who, data['data']['items'][key].from, data['data']['items'][key].type);
+                        bridge.addBridgedAccessories({
+                            accessory: dev.getAccessory()
+                        });
+                    }
+                    else {
+                        var connectionAccessories = bridge.bridgedAccessories.filter(function (obj) {
+                            return (obj.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.FirmwareRevision).value.includes('2.0.0'));
+                        });
+                        var res = connectionAccessories.filter(item1 =>
+                            !data['data']['items'].some(item2 => (item2.who === item1.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.Model).value && item2.from === item1.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.SerialNumber).value)))
+                        if (res.length != 0) {
+                            for (var key in res) {
+                                bridge.removeBridgedAccessory(res[key]);
+                            }
                         }
                     }
                 }
+            }
+            else {
+                console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " empty payload: " + data);
             }
         }
     });
@@ -59,28 +70,33 @@ async function buildNasSharesList() {
             return console.error(err)
         }
         else {
-            for (var key in data['data']['shares']) {
-                var bridgeAcc = bridge.bridgedAccessories.filter(function (obj) {
-                    return (obj.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.Model).value === data['data']['shares'][key].name);
-                });
-                if (bridgeAcc.length === 0) {
-                    const dev = new synoNasShare(data['data']['shares'][key].name);
-                    bridge.addBridgedAccessories({
-                        accessory: dev.getAccessory()
+            if (data['data'] != null) {
+                for (var key in data['data']['shares']) {
+                    var bridgeAcc = bridge.bridgedAccessories.filter(function (obj) {
+                        return (obj.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.Model).value === data['data']['shares'][key].name);
                     });
-                }
-                else {
-                    var connectionAccessories = bridge.bridgedAccessories.filter(function (obj) {
-                        return (obj.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.FirmwareRevision).value.includes('1.0.0'));
-                    });
-                    var res = connectionAccessories.filter(item1 =>
-                        !data['data']['shares'].some(item2 => (item2.name === item1.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.Model).value)))
-                    if (res.length != 0) {
-                        for (var key in res) {
-                            bridge.removeBridgedAccessory(res[key]);
+                    if (bridgeAcc.length === 0) {
+                        const dev = new synoNasShare(data['data']['shares'][key].name);
+                        bridge.addBridgedAccessories({
+                            accessory: dev.getAccessory()
+                        });
+                    }
+                    else {
+                        var connectionAccessories = bridge.bridgedAccessories.filter(function (obj) {
+                            return (obj.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.FirmwareRevision).value.includes('1.0.0'));
+                        });
+                        var res = connectionAccessories.filter(item1 =>
+                            !data['data']['shares'].some(item2 => (item2.name === item1.getService(Service.AccessoryInformation).getCharacteristic(Characteristic.Model).value)))
+                        if (res.length != 0) {
+                            for (var key in res) {
+                                bridge.removeBridgedAccessory(res[key]);
+                            }
                         }
                     }
                 }
+            }
+            else {
+                console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " empty payload: " + data);
             }
         }
     });
