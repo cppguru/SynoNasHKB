@@ -10,6 +10,8 @@ const synoNasTemperature = require('./synoNasTemperature');
 const synoNasConnection = require('./synoNasConnection');
 const synoNasUpsBattery = require('./synoNasUpsBattery');
 const synoNasShare = require('./synoNasShare');
+const storage = require('node-persist');
+storage.initSync();
 const { bridge } = require('./synoNasBridge');
 const hap = require("hap-nodejs");
 const Service = hap.Service;

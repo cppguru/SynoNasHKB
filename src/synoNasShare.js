@@ -104,7 +104,7 @@ module.exports = class ShareAccessory {
           }
         }.bind(this));
         console.log("Share - " + this.label + " checking mount state: " + this.state);
-        return this.state;
+        //return this.state;
       },
       uuid: hap.uuid.generate("synology.nas.userconnections.GarageDoorOpener" + name + Math.random().toString(36).substring(7)),
       accessory: null
