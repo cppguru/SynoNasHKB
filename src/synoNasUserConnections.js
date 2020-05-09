@@ -72,7 +72,7 @@ module.exports = class DoorAccessory {
         // console.log("Getting User: " + this.name + " connection State: " + this.state);
         return this.state;
       },
-      uuid: hap.uuid.generate("synology.nas.userconnections.Door" + name + Math.random().toString(36).substring(7)),
+      uuid: hap.uuid.generate("synology.nas.userconnections.Door" + name + from), //Math.random().toString(36).substring(7)),
       accessory: null
     };
     console.log("Accessory " + name + " " + config.bridge.accessoryNasConnectedUser.label + " created.");

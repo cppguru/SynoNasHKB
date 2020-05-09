@@ -106,7 +106,7 @@ module.exports = class ShareAccessory {
         console.log("Share - " + this.label + " checking mount state: " + this.state);
         //return this.state;
       },
-      uuid: hap.uuid.generate("synology.nas.userconnections.GarageDoorOpener" + name + Math.random().toString(36).substring(7)),
+      uuid: hap.uuid.generate("synology.nas.userconnections.GarageDoorOpener" + name),
       accessory: null
     };
     console.log("Accessory " + name + " " + config.bridge.accessoryNasShare.label + " created.");
