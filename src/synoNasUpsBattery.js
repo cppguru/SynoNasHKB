@@ -6,7 +6,7 @@
 
 const hap = require("hap-nodejs");
 const config = require('../configs/config-SynoNasBridge.json');
-const synoNasConnection = require('./synoNasConnection');
+const synoLibrary = require('./synoLibrary');
 const Accessory = hap.Accessory;
 const Characteristic = hap.Characteristic;
 const CharacteristicEventTypes = hap.CharacteristicEventTypes;
@@ -27,45 +27,39 @@ BATTERY = {
   chargingState: 1,
   statusLowBattery: 0,
   duration: 0,
-  getChargeLevel: function () {
-    synoNasConnection.query('/webapi/entry.cgi', {
+  getChargeLevel: async function () {
+    const queryNasUps = await synoLibrary.query({
       api: 'SYNO.Core.ExternalDevice.UPS',
       version: 1,
       method: 'get'
-    }, function (err, data) {
-      if (err) {
-        console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
-        return console.error(err)
+    });
+    if (queryNasUps.data != null) {
+      BATTERY.charge = parseInt(queryNasUps.data['charge']);
+      BATTERY.duration = (parseInt(queryNasUps.data['runtime']) / 60);
+      if (BATTERY.duration <= 20) {
+        BATTERY.statusLowBattery = 1;
       }
       else {
-        if (data['data'] != null) {
-          BATTERY.charge = parseInt(data['data']['charge']);
-          BATTERY.duration = (parseInt(data['data']['runtime']) / 60);
-          if (BATTERY.duration <= 20) {
-            BATTERY.statusLowBattery = 1;
-          }
-          else {
-            BATTERY.statusLowBattery = 0;
-          }
-          if (String(data['data']['status']).includes('online')) {
-            BATTERY.chargingState = 1;
-          }
-          else {
-            BATTERY.chargingState = 2;
-          }
-          //BATTERY.charge = parseInt(data['data']['charge']);
-          accessory.getService(Service.AccessoryInformation)
-            .setCharacteristic(Characteristic.Manufacturer, "Batt. Duration: " + BATTERY.duration)
-
-          accessory.getService(Service.BatteryService).getCharacteristic(Characteristic.ChargingState).updateValue(BATTERY.chargingState);
-          accessory.getService(Service.HumiditySensor).getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(BATTERY.charge);
-          accessory.getService(Service.BatteryService).getCharacteristic(Characteristic.StatusLowBattery).updateValue(BATTERY.statusLowBattery);
-        }
-        else {
-          console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " empty payload: " + data);
-        }
+        BATTERY.statusLowBattery = 0;
       }
-    })
+      if (String(queryNasUps.data['status']).includes('online')) {
+        BATTERY.chargingState = 1;
+      }
+      else {
+        BATTERY.chargingState = 2;
+      }
+      BATTERY.charge = parseInt(queryNasUps.data['charge']);
+      accessory.getService(Service.AccessoryInformation)
+        .setCharacteristic(Characteristic.Manufacturer, "Batt. Duration: " + BATTERY.duration)
+
+      accessory.getService(Service.BatteryService).getCharacteristic(Characteristic.BatteryLevel).updateValue(BATTERY.charge);
+      accessory.getService(Service.BatteryService).getCharacteristic(Characteristic.ChargingState).updateValue(BATTERY.chargingState);
+      accessory.getService(Service.HumiditySensor).getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(BATTERY.charge);
+      accessory.getService(Service.BatteryService).getCharacteristic(Characteristic.StatusLowBattery).updateValue(BATTERY.statusLowBattery);
+    }
+    else {
+      console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
+    }
     console.log(config.bridge.accessoryNasUps.label + " - Checking charging state: " + BATTERY.chargingState);
     console.log(config.bridge.accessoryNasUps.label + " - Checking charge level: " + BATTERY.charge);
     console.log(config.bridge.accessoryNasUps.label + " - Checking battery status low: " + BATTERY.statusLowBattery);
@@ -76,8 +70,8 @@ BATTERY = {
 
 nasUpsService
   .getCharacteristic(Characteristic.CurrentRelativeHumidity)
-  .on(CharacteristicEventTypes.GET, callback => {
-    callback(undefined, BATTERY.getChargeLevel())
+  .on(CharacteristicEventTypes.GET, async callback => {
+    callback(undefined, await BATTERY.getChargeLevel())
   });
 
 
