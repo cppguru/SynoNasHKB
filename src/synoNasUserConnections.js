@@ -6,11 +6,11 @@
 
 const hap = require('hap-nodejs');
 const config = require('../configs/config-SynoNasBridge.json');
-const synoNasConnection = require('./synoNasConnection');
 const Accessory = hap.Accessory;
 const Characteristic = hap.Characteristic;
 const Service = hap.Service;
 const { bridge } = require('./synoNasBridge');
+const synoLibrary = require('./synoLibrary');
 
 module.exports = class DoorAccessory {
   constructor(name, from, type, descr) {
@@ -23,24 +23,28 @@ module.exports = class DoorAccessory {
       manufacturer: "DM Industries",
       model: "Synology Nas Connected Users",
       serialNumber: "00000001", //serial number (optional)
-      setState: function () {
+      setState: async function () {
         if (this.state == true) {
-          this.state = false;
-          synoNasConnection.query('/webapi/entry.cgi', {
-            api: 'SYNO.Core.CurrentConnection',
-            version: "1",
-            method: 'kick_connection',
-            http_conn: '[{"who":"' + this.name + '","from":"' + this.from + '"}]'
-          }, function (err, data) {
-            if (err) {
-              console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
-              return console.error(err)
-            }
-            else {
+          const queryNasUsers = await synoLibrary.query({
+            'api': 'SYNO.Core.CurrentConnection',
+            'version': '1',
+            'method': 'kick_connection',
+            'http_conn': '[{"who":"' + this.name + '","from":"' + this.from + '"}]'
+          });
+          if (queryNasUsers != null) {
+            if (queryNasUsers.success === true) {
+              this.state = false;
               bridge.removeBridgedAccessory(this.accessory);
               console.log("Disconnecting User: " + this.name + " " + this.state);
             }
-          }.bind(this));
+            else {
+              console.log("Failed to disconnect User: " + this.name + " " + this.state);
+            }
+          }
+          else {
+            console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
+            return console.error(err)
+          }
         }
         return this.state;
       },
