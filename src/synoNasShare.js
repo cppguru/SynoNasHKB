@@ -6,7 +6,7 @@
 
 const hap = require('hap-nodejs');
 const config = require('../configs/config-SynoNasBridge.json');
-const synoNasConnection = require('./synoNasConnection');
+const synoLibrary = require('./synoLibrary');
 const Accessory = hap.Accessory;
 const Characteristic = hap.Characteristic;
 const Service = hap.Service;
@@ -16,7 +16,7 @@ module.exports = class ShareAccessory {
     this.GarageDoorOpener = {
       label: name,
       name: "Share:\r\n" + name,
-      setState: function () {
+      setState: async function () {
         let callAction = null;
         if (this.state) {
           callAction = 'encrypt';
@@ -25,18 +25,15 @@ module.exports = class ShareAccessory {
           callAction = 'decrypt';
           this.state = true;
         }
-        synoNasConnection.query('/webapi/entry.cgi', {
-          api: 'SYNO.Core.Share.Crypto',
-          version: "1",
-          method: callAction,
-          password: config.bridge.accessoryNasShare.encryptionKey,
-          name: '"' + name + '"'
-        }, function (err, data) {
-          if (err) {
-            console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
-            return console.error(err)
-          }
-          else {
+        const queryNasShares = await synoLibrary.query({
+          'api': 'SYNO.Core.Share.Crypto',
+          'version': '1',
+          'method': callAction,
+          'password': config.bridge.accessoryNasShare.encryptionKey,
+          'name': '"' + name + '"'
+        });
+        if (queryNasShares != null) {
+          if (queryNasShares.success === true) {
             if (this.state) {
               this.accessory.getService(Service.GarageDoorOpener)
                 .getCharacteristic(Characteristic.CurrentDoorState)
@@ -57,53 +54,49 @@ module.exports = class ShareAccessory {
             }
             console.log("Share - " + this.label + " mount state changed to: " + this.state);
           }
-        }.bind(this));
+          else {
+            console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
+          }
+        }
         return this.state;
       },
       state: true,
-      getState: function () {
-        synoNasConnection.query('/webapi/entry.cgi', {
-          api: 'SYNO.Core.Share',
-          version: "1",
-          method: 'list',
-          additional: '["encryption"]'
-        }, function (err, data) {
-          if (err) {
-            console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
-            return console.error(err)
+      getState: async function () {
+        const queryNasShares = await synoLibrary.query({
+          'api': 'SYNO.Core.Share',
+          'version': '1',
+          'method': 'list',
+          'additional': '["encryption"]'
+        });
+        //console.log(queryNasShares);
+        if (queryNasShares.data != null) {
+          var foundUser = queryNasShares.data['shares'].filter(function (obj) {
+            return obj.name === name & obj.encryption != 1;
+          });
+          if (foundUser.length === 1) {
+            this.state = true;
+            this.accessory.getService(Service.GarageDoorOpener)
+              .getCharacteristic(Characteristic.CurrentDoorState)
+              .updateValue(0);
+
+            this.accessory.getService(Service.GarageDoorOpener)
+              .getCharacteristic(Characteristic.TargetDoorState)
+              .updateValue(0);
           }
           else {
-            if (data['data'] != null) {
-              var foundUser = data['data']['shares'].filter(function (obj) {
-                return obj.name === name & obj.encryption != 1;
-              });
-              if (foundUser.length === 1) {
-                this.state = true;
-                this.accessory.getService(Service.GarageDoorOpener)
-                  .getCharacteristic(Characteristic.CurrentDoorState)
-                  .updateValue(0);
+            this.state = false;
+            this.accessory.getService(Service.GarageDoorOpener)
+              .getCharacteristic(Characteristic.CurrentDoorState)
+              .updateValue(1);
 
-                this.accessory.getService(Service.GarageDoorOpener)
-                  .getCharacteristic(Characteristic.TargetDoorState)
-                  .updateValue(0);
-              }
-              else {
-                this.state = false;
-                this.accessory.getService(Service.GarageDoorOpener)
-                  .getCharacteristic(Characteristic.CurrentDoorState)
-                  .updateValue(1);
-
-                this.accessory.getService(Service.GarageDoorOpener)
-                  .getCharacteristic(Characteristic.TargetDoorState)
-                  .updateValue(1);
-              }
-            }
-            else {
-              console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " empty payload: " + data);
-            }
+            this.accessory.getService(Service.GarageDoorOpener)
+              .getCharacteristic(Characteristic.TargetDoorState)
+              .updateValue(1);
           }
-        }.bind(this));
-        console.log("Share - " + this.label + " checking mount state: " + this.state);
+        }
+        else {
+          console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " empty payload: " + data);
+        }
         //return this.state;
       },
       uuid: hap.uuid.generate("synology.nas.userconnections.GarageDoorOpener" + name),
@@ -127,7 +120,7 @@ module.exports = class ShareAccessory {
       acc.getService(Service.GarageDoorOpener)
         .getCharacteristic(Characteristic.TargetDoorState)
         .on('set', async (value, cb) => {
-          this.GarageDoorOpener.setState(value);
+          await this.GarageDoorOpener.setState(value);
           cb();
         })
       acc.getService(Service.GarageDoorOpener)
