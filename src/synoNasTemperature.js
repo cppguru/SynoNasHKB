@@ -6,7 +6,7 @@
 
 const hap = require("hap-nodejs");
 const config = require('../configs/config-SynoNasBridge.json');
-const synoNasConnection = require('./synoNasConnection');
+const synoLibrary = require('./synoLibrary');
 const Accessory = hap.Accessory;
 const Characteristic = hap.Characteristic;
 const CharacteristicEventTypes = hap.CharacteristicEventTypes;
@@ -24,26 +24,19 @@ SENSOR = {
   serialNumber: "00000001",
 
   currentTemperature: 0,
-  getTemperature: function () {
-    synoNasConnection.query('/webapi/entry.cgi', {
+  getTemperature: async function () {
+    const queryNasTemperature = await synoLibrary.query({
       api: 'SYNO.Core.System',
       version: 1,
       method: 'info'
-    }, function (err, data) {
-      if (err) {
-        console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " " + err);
-        return console.error(err)
-      }
-      else {
-        if (data['data'] != null) {
-          SENSOR.currentTemperature = parseFloat(data['data']['sys_temp']);
-          accessory.getService(Service.TemperatureSensor).getCharacteristic(Characteristic.On).updateValue(SENSOR.currentTemperature);
-        }
-        else {
-          console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn + " empty payload: " + data);
-        }
-      }
     });
+    if (queryNasTemperature.data != null) {
+      SENSOR.currentTemperature = parseFloat(queryNasTemperature.data['sys_temp']);
+      accessory.getService(Service.TemperatureSensor).getCharacteristic(Characteristic.On).updateValue(SENSOR.currentTemperature);
+    }
+    else {
+      console.log("!!! ERROR WHILE TALKING TO " + config.nas.fqdn);
+    }
     console.log(config.bridge.accessoryNasTemperature.label + " - Checking current temperature: " + SENSOR.currentTemperature);
     return SENSOR.currentTemperature;
   }
@@ -55,8 +48,8 @@ SENSOR = {
 //nasTemperatureService.setCharacteristic(Characteristic.SerialNumber, SENSOR.serialNumber);
 nasTemperatureService
   .getCharacteristic(Characteristic.CurrentTemperature)
-  .on(CharacteristicEventTypes.GET, callback => {
-    callback(undefined, SENSOR.getTemperature())
+  .on(CharacteristicEventTypes.GET,async callback => {
+    callback(undefined, await SENSOR.getTemperature())
   });
 
 
