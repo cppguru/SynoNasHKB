@@ -22,13 +22,6 @@ function auth() {
         'format': 'sid'
     })
     return axios.post(config.nas.fqdn + ':' + config.nas.port + '/webapi/auth.cgi', data)
-    // .then(function (response) {
-    //     // console.log(response);
-    //     return this.response;
-    // })
-    // .catch(function (error) {
-    //     //console.log(error);
-    // });
 }
 
 exports.query = async function querySyno(payload, path) {
