@@ -9,19 +9,23 @@
       "refreshInterval":"refresh interval in seconds for pooling data from nas"
     },
     "accessoryNasConnectedUser": {
-      "label":"Placeholder won't show in Home app at this moment",
+      "label":"This is the accessory name that will be show in HomeKit app",
       "refreshInterval":"refresh interval in seconds for pooling data from nas"
     },
     "accessoryNasUps": {
       "label":"This is the accessory name that will be show in HomeKit app",
       "refreshInterval":"refresh interval in seconds for pooling data from nas"
+    },
+    "accessoryNasShare": {
+      "label":"This is the accessory name that will be show in HomeKit app",
+      "refreshInterval":"This is the accessory name that will be show in HomeKit app",
+      "encryptionKey":"YOUR_ENCRYPTION_KEY_FOR_THE_SHARE"
     }
   },
   "nas": {
     "fqdn": "FQDN of your Synology NAS",
     "port": "Port of your NAS",
     "username":"User with admin rights on the NAS",
-    "password":"Password",
-    "https":"Set true for https or false for http"
+    "password":"Password"
   }
 }
